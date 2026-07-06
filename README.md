@@ -1,5 +1,11 @@
 # examen-comunicaciones-unificadas
 Scripts, topologías y configuraciones para el examen de CCUU
+# Paginas a usar
+https://aistudio.google.com/
+https://api.slack.com/apps
+https://app.slack.com/
+https://openrouter.ai
+https://www.duckdns.org/
 
 ## Comandos de Verificación en el Examen
 
