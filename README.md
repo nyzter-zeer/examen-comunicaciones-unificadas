@@ -1,24 +1,31 @@
-# examen-comunicaciones-unificadas
-Scripts, topologías y configuraciones para el examen de CCUU
-# Paginas a usar
-https://aistudio.google.com/
-https://api.slack.com/apps
-https://app.slack.com/
-https://openrouter.ai
-https://www.duckdns.org/
+# 🚀 Examen de Comunicaciones Unificadas (CCUU)
 
-## Comandos de Verificación en el Examen
+Este repositorio contiene los scripts, topologías de red y archivos de configuración requeridos para el desarrollo y despliegue del examen de Comunicaciones Unificadas.
 
-### Validar y reiniciar servicios
+---
+
+## 🌐 Herramientas y Plataformas Utilizadas
+
+| Plataforma / Servicio | Propósito / Enlace |
+| :--- | :--- |
+| **Google AI Studio** | 🔗 [Prototipado e Inteligencia Artificial](https://aistudio.google.com/) |
+| **Slack App Management** | 🔗 [Configuración y API de Aplicaciones](https://api.slack.com/apps) |
+| **Slack Workspace** | 🔗 [Entorno de Trabajo e Integración](https://app.slack.com/) |
+| **OpenRouter** | 🔗 [Acceso unificado a Modelos de Lenguaje](https://openrouter.ai) |
+| **DuckDNS** | 🔗 [Servicio de DNS Dinámico (DDNS)](https://www.duckdns.org/) |
+
+---
+
+## 🛠️ Comandos Esenciales de Verificación y Diagnóstico
+
+Usa estos comandos en la consola del servidor para validar configuraciones, gestionar servicios y resolver problemas de conectividad durante el examen.
+
+### 1. Validación de Sintaxis y Gestión de Servicios
+Antes de reiniciar cualquier servicio en producción, asegúrate de validar que no existan errores de sintaxis en los archivos de configuración.
+
 ```bash
-# Comprobar sintaxis de Kamailio sin romper producción
+# Validar la sintaxis de Kamailio antes de aplicar cambios
 sudo kamailio -c
 
-# Reinicios limpios
+# Reiniciar los servicios de señalización y manejo de medios de forma segura
 sudo systemctl restart kamailio rtpengine
-
-# Ver logs de telefonía e hilos de conversión en tiempo real
-sudo tail -f /var/log/syslog | grep -E 'kamailio|rtpengine'
-
-#Captura de tráfico SIP/RTP (Troubleshooting)
-sudo tcpdump -i any -n 'port 5060 or port 5061 or portrange 10000-20000' -w /tmp/nat-test.pcap
