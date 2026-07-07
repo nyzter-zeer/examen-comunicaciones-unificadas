@@ -26,7 +26,7 @@ RUN echo '* libraries/restart-without-asking boolean true' | debconf-set-selecti
         sox pkg-config libedit-dev unzip git gnupg2 curl libnewt-dev libssl-dev subversion \
         build-essential wget libncurses5-dev libncursesw5-dev libxml2-dev uuid-dev \
         libsqlite3-dev sqlite3 libjansson-dev libcurl4-openssl-dev libspeexdsp-dev \
-        supervisor sysvinit-utils \
+        supervisor sysvinit-utils cron \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------------
@@ -104,12 +104,17 @@ RUN wget http://mirror.freepbx.org/modules/packages/freepbx/freepbx-17.0-latest.
     rm freepbx-17.0-latest.tgz
 
 RUN service mariadb start && \
+    service cron start && \
     sleep 5 && \
     mysql -e "DROP DATABASE IF EXISTS asterisk;" || true && \
     mysql -e "DROP DATABASE IF EXISTS asteriskcdrdb;" || true && \
+    /usr/sbin/asterisk -U asterisk -G asterisk -f -C /etc/asterisk/asterisk.conf & \
+    sleep 8 && \
     cd /usr/src/freepbx && \
-    (./install -n || true) && \
+    ./install -n && \
     (fwconsole ma install pm2 || true) && \
+    asterisk -rx "core stop now" || true && \
+    sleep 2 && \
     mysqladmin shutdown
 
 # ------------------------------------------------------------------------
@@ -138,3 +143,4 @@ EXPOSE 80 443 5060/udp 5060/tcp 5061/tcp 10000-20000/udp
 VOLUME ["/etc/asterisk", "/var/lib/asterisk", "/var/spool/asterisk", "/var/lib/mysql", "/var/www/html"]
 
 ENTRYPOINT ["/entrypoint.sh"]
+
