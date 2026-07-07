@@ -1,0 +1,22 @@
+services:
+  freepbx:
+    build: .
+    image: freepbx-custom:22-17
+    container_name: freepbx-custom
+    restart: unless-stopped
+    # network_mode host: necesario para que SIP/RTP funcionen sin problemas
+    # de NAT (mismo motivo que en el docker de Asterisk solo)
+    network_mode: "host"
+    volumes:
+      - asterisk-etc:/etc/asterisk
+      - asterisk-lib:/var/lib/asterisk
+      - asterisk-spool:/var/spool/asterisk
+      - mysql-data:/var/lib/mysql
+      - freepbx-web:/var/www/html
+
+volumes:
+  asterisk-etc:
+  asterisk-lib:
+  asterisk-spool:
+  mysql-data:
+  freepbx-web:
