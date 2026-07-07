@@ -30,24 +30,18 @@ RUN echo '* libraries/restart-without-asking boolean true' | debconf-set-selecti
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------------
-# 3. Descarga y compilación de Asterisk 22 (equivalente a tus pasos 4 y 6)
+# 3. Descarga, compilación y limpieza de Asterisk 22 (equivalente a tus pasos 4 y 6)
 # ------------------------------------------------------------------------
 WORKDIR /usr/src
 RUN wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-22-current.tar.gz && \
     tar -xvzf asterisk-22-current.tar.gz && \
-    rm asterisk-22-current.tar.gz
-
-# NOTA: el nombre real de la carpeta descomprimida varía según la versión
-# exacta que se descargue (ej. asterisk-22.5.2), por eso se resuelve
-# dinámicamente con `find` en vez de hardcodearlo.
-RUN ASTDIR=$(find /usr/src -maxdepth 1 -type d -name "asterisk-22.*") && \
+    rm asterisk-22-current.tar.gz && \
+    ASTDIR=$(find /usr/src -maxdepth 1 -type d -name "asterisk-22.*") && \
     cd "$ASTDIR" && \
     cd contrib/scripts && \
     sed -i 's/set -e/set +e/g' install_prereq && \
     sed -i 's/grep -c/grep -c || true/g' install_prereq && \
-    yes | ./install_prereq install
-
-RUN ASTDIR=$(find /usr/src -maxdepth 1 -type d -name "asterisk-22.*") && \
+    yes | ./install_prereq install && \
     cd "$ASTDIR" && \
     contrib/scripts/get_mp3_source.sh && \
     ./configure && \
@@ -62,7 +56,9 @@ RUN ASTDIR=$(find /usr/src -maxdepth 1 -type d -name "asterisk-22.*") && \
       --enable EXTRA-SOUNDS-EN-WAV --enable EXTRA-SOUNDS-EN-ULAW --enable EXTRA-SOUNDS-EN-ALAW \
       --enable EXTRA-SOUNDS-EN-GSM --enable EXTRA-SOUNDS-EN-G729 \
       menuselect.makeopts && \
-    make -j$(nproc) && make install && make samples && make config && ldconfig
+    make -j$(nproc) && make install && make samples && make config && ldconfig && \
+    cd /usr/src && \
+    rm -rf "$ASTDIR"
 
 # ------------------------------------------------------------------------
 # 4. Usuario y permisos de Asterisk (equivalente a tu paso 7)
@@ -94,16 +90,15 @@ RUN apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------------
-# 7. Instalación de FreePBX 17 (equivalente a tu paso 9, parte final)
+# 7. Descarga, instalación y limpieza de FreePBX 17 (equivalente a tu paso 9, parte final)
 #    NOTA: MariaDB se levanta manualmente DENTRO de esta capa de build,
 #    se corre el instalador de FreePBX, y luego se apaga de forma limpia.
 # ------------------------------------------------------------------------
 WORKDIR /usr/src
 RUN wget http://mirror.freepbx.org/modules/packages/freepbx/freepbx-17.0-latest.tgz && \
     tar -xvzf freepbx-17.0-latest.tgz && \
-    rm freepbx-17.0-latest.tgz
-
-RUN service mariadb start && \
+    rm freepbx-17.0-latest.tgz && \
+    service mariadb start && \
     service cron start && \
     sleep 5 && \
     mysql -e "DROP DATABASE IF EXISTS asterisk;" || true && \
@@ -115,7 +110,9 @@ RUN service mariadb start && \
     (fwconsole ma install pm2 || true) && \
     asterisk -rx "core stop now" || true && \
     sleep 2 && \
-    mysqladmin shutdown
+    mysqladmin shutdown && \
+    cd /usr/src && \
+    rm -rf freepbx
 
 # ------------------------------------------------------------------------
 # 8. Apache y PHP (equivalente a tu paso 10)
