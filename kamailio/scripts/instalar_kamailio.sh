@@ -50,4 +50,4 @@ sudo chmod 640 /etc/kamailio/certs/kamailio-key.pem
 sudo chmod 644 /etc/kamailio/certs/kamailio-cert.pem
 
 echo "=== Ajustes del Servidor Completados ==="
-echo "Proceda a copiar los archivos de configuración unificados desde la carpeta configs/"
+echo "Proceda a copiar los archivos de configuración unificados desde la carpeta kamailio/config/"
